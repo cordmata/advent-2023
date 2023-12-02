@@ -8,26 +8,33 @@ import (
 
 func main() {
 	fmt.Printf("part 1: %v\n", part1(input))
+	fmt.Printf("part 2: %v\n", part2(input))
 }
 
-var colorMax = map[string]int{
-	"red":   12,
-	"green": 13,
-	"blue":  14,
+type game struct {
+	id    int
+	plays []colors
 }
 
-func part1(in string) int {
-	var score int
+type colors map[string]int
+
+func parseGames(in string) []game {
+	var games []game
 	for _, s := range strings.Split(in, "\n") {
-		g := strings.Split(s, ":")
-		header, body := g[0], g[1]
+		gSplit := strings.Split(s, ":")
+		header, body := gSplit[0], gSplit[1]
 		var gameId int
 		_, err := fmt.Sscanf(header, "Game %d", &gameId)
 		if err != nil {
 			log.Fatalf("can't parse game id %v", err)
 		}
-		isViable := true
+		g := game{id: gameId}
 		for _, p := range strings.Split(body, "; ") {
+			gColors := colors{
+				"red":   0,
+				"green": 0,
+				"blue":  0,
+			}
 			for _, c := range strings.Split(p, ", ") {
 				var count int
 				var color string
@@ -35,19 +42,60 @@ func part1(in string) int {
 				if err != nil {
 					log.Fatalf("can't parse color %v", err)
 				}
+				gColors[color] = count
+			}
+			g.plays = append(g.plays, gColors)
+		}
+		games = append(games, g)
+	}
+	return games
+}
+
+func part1(in string) int {
+	var colorMax = colors{
+		"red":   12,
+		"green": 13,
+		"blue":  14,
+	}
+	var score int
+	for _, g := range parseGames(in) {
+		isViable := true
+		for _, play := range g.plays {
+			for color, count := range play {
 				if count > colorMax[color] {
 					isViable = false
 				}
 			}
 		}
 		if isViable {
-			score += gameId
+			score += g.id
 		}
 	}
 	return score
 }
 
-const p1example = `Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
+func part2(in string) int {
+	var score int
+	for _, g := range parseGames(in) {
+		var colorMax = colors{}
+		for _, play := range g.plays {
+			for _, c := range []string{"red", "green", "blue"} {
+				currentMax := colorMax[c]
+				if play[c] > currentMax {
+					colorMax[c] = play[c]
+				}
+			}
+		}
+		power := 1
+		for _, cm := range colorMax {
+			power *= cm
+		}
+		score += power
+	}
+	return score
+}
+
+const example = `Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
 Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
 Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
 Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
