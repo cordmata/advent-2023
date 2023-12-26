@@ -38,21 +38,13 @@ func (a almanac) seedLocations() []uint64 {
 }
 
 func (a almanac) findLocation(seed uint64) uint64 {
-	fmt.Print("seed", seed, ", ")
 	if soil := a.seedToSoil.lookup(seed); soil >= 0 {
-		fmt.Print("soil", soil, ", ")
 		if fert := a.soilToFertilizer.lookup(soil); fert >= 0 {
-			fmt.Print("fert", fert, ", ")
 			if water := a.fertilizerToWater.lookup(fert); water >= 0 {
-				fmt.Print("water", water, ", ")
 				if light := a.waterToLight.lookup(water); light >= 0 {
-					fmt.Print("light", light, ", ")
 					if temp := a.lightToTemp.lookup(light); temp >= 0 {
-						fmt.Print("temp", temp, ", ")
 						if humidity := a.tempToHumidity.lookup(temp); humidity >= 0 {
-							fmt.Print("humid", humidity, ", ")
 							if location := a.humidityToLocation.lookup(humidity); location >= 0 {
-								fmt.Print("loc", location, ", \n")
 								return location
 							}
 						}
