@@ -9,16 +9,22 @@ import (
 )
 
 func main() {
-	part1(actual)
+	fmt.Println(part1(actual))
+	fmt.Println(part2(actual))
 }
 
-func part1(input string) {
+func part1(input string) int {
 	lines := strings.Split(input, "\n")
 	var score int
 	for _, line := range lines {
-		score += parseCard(line).score()
+		numWinners := parseCard(line).countWinners()
+		if numWinners > 1 {
+			score += int(math.Pow(2, float64(numWinners-1)))
+		} else {
+			score += numWinners
+		}
 	}
-	fmt.Println(score)
+	return score
 }
 
 type card struct {
@@ -26,17 +32,33 @@ type card struct {
 	board   []int
 }
 
-func (c card) score() int {
+func (c card) countWinners() int {
 	var numWinners int
 	for _, v := range c.winners {
 		if slices.Contains(c.board, v) {
 			numWinners++
 		}
 	}
-	if numWinners > 1 {
-		return int(math.Pow(2, float64(numWinners-1)))
-	}
 	return numWinners
+}
+
+func part2(input string) int {
+	cards := []card{}
+	copies := map[int]int{}
+	for i, line := range strings.Split(input, "\n") {
+		cards = append(cards, parseCard(line))
+		copies[i] = 1
+	}
+	for idx, c := range cards {
+		for i := 1; i <= c.countWinners(); i++ {
+			copies[idx+i] += copies[idx]
+		}
+	}
+	var sum int
+	for _, i := range copies {
+		sum += i
+	}
+	return sum
 }
 
 func SS2IS(in []string) []int {
