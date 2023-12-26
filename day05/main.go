@@ -11,11 +11,17 @@ import (
 
 func main() {
 	fmt.Println(part1(actual))
+	fmt.Println(part2(actual))
 }
 
 func part1(in string) uint64 {
 	a := parseAlmanac(in)
 	return slices.Min(a.seedLocations())
+}
+
+func part2(in string) uint64 {
+	a := parseAlmanac(in)
+	return slices.Min(a.seedRangeLocations())
 }
 
 type almanac struct {
@@ -33,6 +39,18 @@ func (a almanac) seedLocations() []uint64 {
 	locations := []uint64{}
 	for _, seed := range a.seeds {
 		locations = append(locations, a.findLocation(seed))
+	}
+	return locations
+}
+
+func (a almanac) seedRangeLocations() []uint64 {
+	locations := []uint64{}
+	for i := 0; i < len(a.seeds); i += 2 {
+		start := a.seeds[i]
+		len := a.seeds[i+1]
+		for j := start; j < start+len; j++ {
+			locations = append(locations, a.findLocation(j))
+		}
 	}
 	return locations
 }
