@@ -12,7 +12,7 @@ func main() {
 }
 
 func part1() int {
-	races := parseRaces(actual)
+	races := parseRaces1(actual)
 	winnerCounts := []int{}
 	for _, r := range races {
 		var numWinners int
@@ -35,7 +35,31 @@ func part1() int {
 }
 
 func part2() int {
-	return -1
+	lines := strings.Split(actual, "\n")
+	var time int
+	var distance uint64
+	for _, line := range lines {
+		parts := strings.Split(line, ":")
+		label := parts[0]
+		num := strings.ReplaceAll(parts[1], " ", "")
+		if label == "Time" {
+			t, _ := strconv.Atoi(num)
+			time = t
+		}
+		if label == "Distance" {
+			d, _ := strconv.ParseUint(num, 10, 64)
+			distance = d
+		}
+	}
+
+	var numWinners int
+	for holdDuration := 0; holdDuration < time; holdDuration++ {
+		dist := uint64(holdDuration * (time - holdDuration))
+		if dist > distance {
+			numWinners++
+		}
+	}
+	return numWinners
 }
 
 type race struct {
@@ -43,7 +67,7 @@ type race struct {
 	distance int
 }
 
-func parseRaces(in string) []race {
+func parseRaces1(in string) []race {
 	times := []int{}
 	distances := []int{}
 	races := []race{}
